@@ -1,0 +1,4 @@
+device: "1, 2, 3, 4"
+batch_size: 32
+
+
