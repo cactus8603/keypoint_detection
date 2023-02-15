@@ -8,6 +8,7 @@ Vit:
 DataLoader
 training
 pixel Embeddings
+DDP
 
 
 # Paper
