@@ -1,4 +1,13 @@
-device: "1, 2, 3, 4"
+device: "0"
 batch_size: 32
+patch_size: 16
+img_size: 224
+emb_size: 197
+att_emb: 197
+drop_p: 0
+depth: 12
+expansion: 4
+num_heads: 8
 
-
+in_channels: 1
+n_classes: 1000
