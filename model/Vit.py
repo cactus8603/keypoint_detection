@@ -21,21 +21,18 @@ class MultiHeadAttention(nn.Module):
         super().__init__()
         self.emb_size = args_dict['att_emb']
         self.num_heads = args_dict['num_heads']
-        self.qkv = nn.Linear(self.emb_size, self.emb_size)
+        self.qkv = nn.Linear(self.emb_size, self.emb_size * 3)
         self.att_drop = nn.Dropout(args_dict['drop_p'])
         self.projection = nn.Linear(self.emb_size, self.emb_size)
         
     def forward(self, x, mask=None):
-        # print(x.shape) # (1, 197, 16) * (197, 197 * 3)
-        # x, linear
-        # (1, 197, 16) * (16, 16) = (1, 197, 16)
-        x = rearrange(x, 'b n e -> b e n')
-        print(self.qkv(x).shape)
-        q = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
-        k = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
-        v = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
-        # qkv = rearrange(self.qkv(x), "b n (h d qkv) -> (qkv) b h n d", h=self.num_heads, qkv=1)
-        # queries, keys, values = qkv[0], qkv[1], qkv[2]
+
+        # q = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
+        # k = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
+        # v = rearrange(self.qkv(x), "b n (h d) -> b h n d", h=self.num_heads)
+        
+        qkv = rearrange(self.qkv(x), "b n (h d qkv) -> (qkv) b h n d", h=self.num_heads, qkv=3)
+        q, k, v = qkv[0], qkv[1], qkv[2]
      
         energy = torch.einsum('bhqd, bhkd -> bhqk', q, k) # batch, num_heads, query_len, key_len
         if mask is not None:
@@ -68,24 +65,15 @@ class PatchEmbeddings(nn.Module):
     def __init__(self, args_dict):
         super().__init__()
         self.patch_size = args_dict['patch_size']
-        self.img_size = args_dict['img_size']
-        self.projection = nn.Sequential(
-            nn.Conv2d(args_dict['in_channels'], self.patch_size, kernel_size=self.patch_size, stride=self.patch_size),
-            Rearrange('b e (h) (w) -> b (h w) e')
+        self.in_channels = args_dict['in_channels']
+        self.emb_size = args_dict['emb_size']
+        self.proj = nn.Sequential(
+            Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=self.patch_size, s2=self.patch_size),
+            nn.Linear(self.patch_size * self.patch_size * self.in_channels, self.emb_size)
         )
-
-        self.cls_token = nn.Parameter(torch.randn(1,1, self.patch_size))
-        self.pos = nn.Parameter(torch.randn((self.img_size // self.patch_size) ** 2 + 1, self.patch_size))
-
+    
     def forward(self, x):
-        b, C, H, W = x.shape
-        x = self.projection(x)
-        cls_token = repeat(self.cls_token, '() n e -> b n e', b=b)
-        x = torch.cat([cls_token, x], dim=1)
-        x += self.pos
-        # x = rearrange(x, 'b n e -> b e n')
-        print('first')
-        print(x.shape)
+        x = self.proj(x)
         return x
 
 ### LayerNorm -> MultiHead -> LayerNorm -> MLP ->  
@@ -96,12 +84,12 @@ class TransformerEncoderBlock(nn.Sequential):
     def __init__(self, args_dict):
         super().__init__(
             ResidualAdd(nn.Sequential(
-                nn.LayerNorm([args_dict['emb_size'], args_dict['patch_size']]),
+                nn.LayerNorm(args_dict['emb_size']),
                 MultiHeadAttention(args_dict),
                 nn.Dropout(args_dict['drop_p'])
             )),
             ResidualAdd(nn.Sequential(
-                nn.LayerNorm([args_dict['emb_size'], args_dict['patch_size']]), 
+                nn.LayerNorm(args_dict['emb_size']),
                 FeedForward(args_dict['emb_size'], args_dict['expansion'], args_dict['drop_p']),
                 nn.Dropout(args_dict['drop_p'])
             ))
@@ -122,7 +110,7 @@ class ClassificationHead(nn.Module):
         super().__init__()
         self.ClassificationHead = nn.Sequential(
             Reduce('b n e -> b e', reduction='mean'),
-            nn.LayerNorm([args_dict['emb_size'], args_dict['patch_size']]),
+            nn.LayerNorm(args_dict['emb_size']),
             nn.Linear(args_dict['emb_size'], args_dict['n_classes'])
         )
     

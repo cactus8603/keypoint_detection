@@ -1,6 +1,9 @@
 import argparse
 import yaml
-from torchvision.transforms import Compose, Resize, ToTensor
+import torch
+import cv2
+import numpy as np
+from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
 from torchsummary import summary
 from PIL import Image
 
@@ -35,14 +38,24 @@ if __name__ == '__main__':
     # print(args_dict)
     # print(args.batch_size)
 
-    img = Image.open('./1.png')
-    transform = Compose([Resize((224, 224)), ToTensor()])
+    img = cv2.imread('1.png')
+    gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+    img = np.zeros_like(img)
+    img[:,:,0] = gray
+    img[:,:,1] = gray
+    img[:,:,2] = gray
+
+    transform = Compose([
+        ToPILImage(),
+        Resize((224, 224)), 
+        ToTensor()
+        ])
     x = transform(img)
     x = x.unsqueeze(0)
-    # print(x.shape)
+    print(x.shape)
 
     model = Vit(args_dict=args_dict)
-    # summary(model(), (1,1,224,224), device='cpu')
+    # summary(model(), (1,3,224,224), device='cpu')
     pred = model(x)
     print(pred)
 
