@@ -1,0 +1,18 @@
+# Finish
+Vit:
+    PatchEmbeddings
+    MultiHeadAttention
+    ClassificationHead
+
+# ToDo
+DataLoader
+training
+pixel Embeddings
+
+
+# Paper
+Vision Transformer:
+    PVT
+    T2T-ViT-14 
+    TNT
+
