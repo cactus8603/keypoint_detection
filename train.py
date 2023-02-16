@@ -5,7 +5,7 @@ import os
 import math
 import numpy as np
 import torch.optim.lr_scheduler as lr_scheduler
-from torch.utils.tensorboard import SummaryWriter
+from tensorboardX import SummaryWriter
 # from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
 
 from utils.dataset import ImgDataSet
@@ -14,19 +14,22 @@ from utils.parser import parser_args
 from model.Vit import Vit
 
 def train(args_dict):
-    device = torch.device(args_dict if torch.cuda.is_available() else "cpu")
+    device = torch.device("cuda:0" if torch.cuda.is_available() else "cpu")
 
     train_loader, val_loader = get_loader(args_dict) 
 
-    tb_writer = SummaryWriter()
+    if not os.path.exists(args_dict['model_save_path']):
+        os.mkdir(args_dict['model_save_path'])
+    tb_writer = SummaryWriter(args_dict['model_save_path'])
 
-    model = Vit()
+    model = Vit(args_dict).to(device)
 
     pg = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
     lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['epoch'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
 
+    print("Start Training")
     for epoch in range(args_dict['epoch']):
 
         train_loss, train_acc = train_one_epoch(
@@ -67,8 +70,7 @@ if __name__ == '__main__':
 
 
     
- 
-    for
+    train(args_dict)
 
     # model = Vit(args_dict=args_dict)
     # # summary(model(), (1,3,224,224), device='cpu')

@@ -6,7 +6,7 @@ import os
 from tqdm import tqdm
 
 
-folder = glob(os.path.join('tra_word', '*'))
+folder = glob(os.path.join('diff1107', '*'))
 progress = tqdm(total = len(folder))
 
 for ff in folder:

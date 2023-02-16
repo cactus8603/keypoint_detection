@@ -15,10 +15,11 @@ else:
     device = torch.device('cpu')
 
 class ImgDataSet(Dataset):
-    def __init__(self, img_data, img_label):
+    def __init__(self, img_data, img_label, args_dict):
         super().__init__()
         self.img_data = img_data
         self.img_label = img_label
+        self.num_classes = args_dict['n_classes']
 
         self.transform = transforms.Compose([
             ToPILImage(),
@@ -37,8 +38,15 @@ class ImgDataSet(Dataset):
         img[:,:,1] = gray
         img[:,:,2] = gray
 
-        img_tensor = self.transform(img).unsqueeze(0)
-        label_tensor = torch.from_numpy(label)
+        img_tensor = self.transform(img)
+        label_tensor = torch.zeros(self.num_classes)
+        label_tensor[label] = 1.
+        # print(img_tensor.shape)
+        # print(label_tensor)
+        # print(label_tensor.shape)
 
         return img_tensor, label_tensor
+    
+    def __len__(self):
+        return len(self.img_data)
 

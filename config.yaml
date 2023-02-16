@@ -5,20 +5,31 @@ spilt_rate: 0.8
 
 batch_size: 32
 num_workers: 6
+lr: 0.01
 lrf: 0.2
 momentum: 0.937
 weight_decay: 0.00005
 epoch: 1000
 
+# Vit Base
+# patch_size: 16
+# img_size: 224
+# emb_size: 768
+# depth: 12
+# num_heads: 12
 
+# Vit Large
 patch_size: 16
 img_size: 224
-emb_size: 768
+emb_size: 1024
+depth: 24
+num_heads: 16
+
 att_emb: 768
 drop_p: 0
-depth: 12
+
 expansion: 4
-num_heads: 8
+
 
 in_channels: 3
-n_classes: 1000
+n_classes: 142
