@@ -3,10 +3,16 @@ Vit:
     PatchEmbeddings
     MultiHeadAttention
     ClassificationHead
-
-# ToDo
 DataLoader
 training
+Confusion Matrix(WP)
+lr_scheduler
+tensorboard
+
+# ToDo
+Gradient Accumulation
+half-precision
+label smoothe
 pixel Embeddings
 DDP
 
