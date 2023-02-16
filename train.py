@@ -7,7 +7,7 @@ import numpy as np
 import torch.optim.lr_scheduler as lr_scheduler
 from tensorboardX import SummaryWriter
 # from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
-
+from torch.cuda import amp
 from utils.dataset import ImgDataSet
 from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
@@ -28,26 +28,28 @@ def train(args_dict):
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
     lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['epoch'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
-
+    scaler = amp.GradScaler()
     print("Start Training")
     for epoch in range(args_dict['epoch']):
-
+        
         train_loss, train_acc = train_one_epoch(
             model=model, 
             optimizer=opt,
             data_loader=train_loader,
             device=device,
-            epoch=epoch
+            epoch=epoch,
+            scaler=scaler,
+            args_dict=args_dict
         )
 
-        val_loss, val_acc = evaluate(
+        scheduler.step()
+
+        val_loss, val_acc, WP = evaluate(
             model=model, 
             data_loader=val_loader,
             device=device,
             epoch=epoch
         )
-
-        scheduler.step()
 
         tags = ["train_loss", "train_acc", "val_loss", "val_acc", "lr"]
         tb_writer.add_scalar(tags[0], train_loss, epoch)
@@ -56,8 +58,8 @@ def train(args_dict):
         tb_writer.add_scalar(tags[3], val_acc, epoch)
         tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
-        if (epoch % 10 == 0):
-            save_path = args_dict['model_save_path'] + "/model_{}.pth".format(epoch)
+        if (epoch % 5 == 0):
+            save_path = args_dict['model_save_path'] + "/model_{}_{}_.pth".format(epoch)
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
             torch.save(model.state_dict(), save_path)

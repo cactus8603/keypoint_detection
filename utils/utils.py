@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from glob import glob
 from torch.utils.data import DataLoader
+from torch.cuda.amp import autocast as autocast
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 
 from .dataset import ImgDataSet
@@ -85,7 +86,7 @@ def WP_score(cm):
     # TN = cm.sum() - (FP + FN + TP)
 
     WP = 0
-    for idx in range(0,14):
+    for idx in range(0,142):
         precision = float(TP[idx] / (TP[idx]+FN[idx]))
         # recall =  float(TP[idx] / (TP[idx]+FP[idx]))
         # f1 = 2 * (precision*recall) / (precision+recall)
@@ -95,12 +96,14 @@ def WP_score(cm):
     
     return 
 
-def train_one_epoch(model, optimizer, data_loader, device, epoch):
+def train_one_epoch(model, optimizer, data_loader, device, epoch, scaler, args_dict):
     model.train()
     loss_function = torch.nn.CrossEntropyLoss()
 
     accu_loss = torch.zeros(1).to(device)
+    avg_loss = torch.zeros(1).to(device)
     accu_num = torch.zeros(1).to(device)
+
     optimizer.zero_grad()
 
     sample_num = 0
@@ -113,23 +116,31 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch):
         # break
         sample_num += img.shape[0]
 
-        pred = model(img)
+        with autocast():
+            pred = model(img)
+            loss = loss_function(pred, label)
+
+        accu_loss += loss.detach()
+        loss /= args_dict['accumulation_step']
+        scaler.scale(loss).backward()
+
         p = F.softmax(pred, dim=1)
         accu_num += (p.argmax(1) == label.argmax(1)).type(torch.float).sum().item()
 
         # pred_class = torch.max(pred, dim=1)[1]
         # accu_num += torch.eq(pred_class, label).sum()
 
-        loss = loss_function(pred, label)
-        loss.backward()
-        accu_loss += loss.detach()
+        if (((i+1) % args_dict['accumulation_step'] == 0) or (i+1 == len(data_loader))):
+            scaler.step(optimizer)
+            scaler.update()
+            # optimizer.step()
+            optimizer.zero_grad()
 
+        # print(accu_loss.item(), loss.detach(), loss.item())     
         data_loader.desc = "train epoch:{}, loss:{:.5f}, acc:{:.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
-    
-        optimizer.step()
-        optimizer.zero_grad()
+        # break
 
-    return accu_loss.item() / (i+1), accu_num.item() / sample_num
+    return (accu_loss.item() / (i+1)), (accu_num.item() / sample_num)
 
 
 @torch.no_grad()
@@ -165,5 +176,5 @@ def evaluate(model, data_loader, device, epoch):
     data_loader.desc = "valid epoch:{}, loss:{.5f}, acc:{.5f}, WP={.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num, WP)
 
     
-    return accu_loss.item()/(i+1), accu_num.item() / sample_num
+    return accu_loss.item()/(i+1), accu_num.item() / sample_num, WP
 

@@ -8,10 +8,10 @@ training
 Confusion Matrix(WP)
 lr_scheduler
 tensorboard
-
-# ToDo
 Gradient Accumulation
 half-precision
+
+# ToDo
 label smoothe
 pixel Embeddings
 DDP
