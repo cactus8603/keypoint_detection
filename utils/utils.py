@@ -77,7 +77,7 @@ def get_confusion_matrix(y_true, y_pred):
             cm = np.insert(cm, idx, np.zeros(cm.shape[0]), axis=1)
             cm = np.insert(cm, idx, np.zeros(cm.shape[1]), axis=0)
     # print(cm.shape)
-    return 
+    return cm
 
 def WP_score(cm):
     # FP = cm.sum(axis=0) - np.diag(cm)  

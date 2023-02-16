@@ -59,7 +59,7 @@ def train(args_dict):
         tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
         if (epoch % 5 == 0):
-            save_path = args_dict['model_save_path'] + "/model_{}_{}_.pth".format(epoch)
+            save_path = args_dict['model_save_path'] + "/model_{}_{:.5f}_.pth".format(epoch, train_acc)
             if not os.path.exists(save_path):
                 os.mkdir(save_path)
             torch.save(model.state_dict(), save_path)
