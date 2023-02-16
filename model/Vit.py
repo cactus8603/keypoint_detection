@@ -19,7 +19,7 @@ class ResidualAdd(nn.Module):
 class MultiHeadAttention(nn.Module):
     def __init__(self, args_dict):
         super().__init__()
-        self.emb_size = args_dict['att_emb']
+        self.emb_size = args_dict['emb_size']
         self.num_heads = args_dict['num_heads']
         self.qkv = nn.Linear(self.emb_size, self.emb_size * 3)
         self.att_drop = nn.Dropout(args_dict['drop_p'])
