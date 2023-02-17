@@ -40,12 +40,13 @@ def train_ddp(rank, world_size, args_dict):
     cleanup()
 
 def train(args_dict, ddp_gpu=-1):
-    # cudnn.benchmark = True
+    cudnn.benchmark = True
     torch.cuda.set_device(ddp_gpu)
     
     train_loader, val_loader = get_loader(args_dict) 
 
     if is_main_worker(ddp_gpu):
+        print("Start Training")
         if not os.path.exists(args_dict['model_save_path']):
             os.mkdir(args_dict['model_save_path'])
         tb_writer = SummaryWriter(args_dict['model_save_path'])
@@ -61,7 +62,7 @@ def train(args_dict, ddp_gpu=-1):
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
     scaler = amp.GradScaler()
 
-    print("Start Training")
+    
     for epoch in range(args_dict['epoch']):
         
         train_loss, train_acc = train_one_epoch(

@@ -82,6 +82,8 @@ class PatchEmbeddings(nn.Module):
     
     def forward(self, x):
         x = self.proj(x)
+        print(x.shape)
+        print(self.pos_embed.shape)
         x = torch.cat([self.pos_embed, x], dim=1)
         return x
 
