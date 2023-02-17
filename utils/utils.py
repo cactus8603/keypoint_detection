@@ -87,12 +87,12 @@ def get_loader(args_dict):
 
     return train_loader, val_loader
 
-def get_confusion_matrix(y_true, y_pred):
+def get_confusion_matrix(y_true, y_pred, classes):
     y_true, y_pred = y_true.cpu().detach().numpy() , y_pred.cpu().detach().numpy() 
     cm = np.array(confusion_matrix(y_true, y_pred),dtype=float)
     tmp = np.append(y_true, y_pred)
     ele = np.unique(tmp)
-    for idx in range(0,14):
+    for idx in range(0, classes):
         if (idx not in ele):
 
             cm = np.insert(cm, idx, np.zeros(cm.shape[0]), axis=1)
@@ -100,14 +100,14 @@ def get_confusion_matrix(y_true, y_pred):
     # print(cm.shape)
     return cm
 
-def WP_score(cm):
+def WP_score(cm, classes):
     # FP = cm.sum(axis=0) - np.diag(cm)  
     FN = cm.sum(axis=1) - np.diag(cm)
     TP = np.diag(cm)
     # TN = cm.sum() - (FP + FN + TP)
 
     WP = 0
-    for idx in range(0,142):
+    for idx in range(0, classes):
         precision = float(TP[idx] / (TP[idx]+FN[idx]))
         # recall =  float(TP[idx] / (TP[idx]+FP[idx]))
         # f1 = 2 * (precision*recall) / (precision+recall)
@@ -165,7 +165,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, scaler, args_d
 
 
 @torch.no_grad()
-def evaluate(model, data_loader, device, epoch):
+def evaluate(model, data_loader, device, epoch, classes):
     model.eval()
     loss_function = torch.nn.CrossEntropyLoss()
 
@@ -175,7 +175,7 @@ def evaluate(model, data_loader, device, epoch):
     sample_num = 0
     data_loader = tqdm(data_loader)
 
-    cm = np.zeros((142, 142),dtype=float)
+    cm = np.zeros((classes, classes),dtype=float)
 
     for i, (img, label) in enumerate(data_loader):
         img, label = img.to(device), label.to(device)
@@ -191,9 +191,9 @@ def evaluate(model, data_loader, device, epoch):
         loss = loss_function(pred, label)
         accu_loss += loss
 
-        cm += get_confusion_matrix(label.argmax(1), p.argmax(1))
+        cm += get_confusion_matrix(label.argmax(1), p.argmax(1), classes)
 
-    WP = WP_score(cm) / sample_num
+    WP = WP_score(cm, classes) / sample_num
     data_loader.desc = "valid epoch:{}, loss:{.5f}, acc:{.5f}, WP={.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num, WP)
 
     

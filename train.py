@@ -81,7 +81,8 @@ def train(args_dict, ddp_gpu=-1):
             model=model, 
             data_loader=val_loader,
             device=ddp_gpu,
-            epoch=epoch
+            epoch=epoch,
+            classes=args_dict['n_classes']
         )
 
         if is_main_worker(ddp_gpu):
