@@ -158,7 +158,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, scaler, args_d
             optimizer.zero_grad()
 
         # print(accu_loss.item(), loss.detach(), loss.item())     
-        data_loader.desc = "train epoch:{},gpu:{},loss:{:.3f},acc:{:.3f}".format(epoch, device, accu_loss.item()/(i+1), accu_num.item() / sample_num)
+        data_loader.desc = "epoch:{},gpu:{},loss:{:.5f},acc:{:.5f}".format(epoch, device, accu_loss.item()/(i+1), accu_num.item() / sample_num)
         # break
 
     return (accu_loss.item() / (i+1)), (accu_num.item() / sample_num)
@@ -196,7 +196,7 @@ def evaluate(model, data_loader, device, epoch, classes):
     # WP = WP_score(cm, classes) / sample_num
     WP = 0
 
-    data_loader.desc = "valid epoch:{}, loss:{:.3f}, acc:{:.3f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
+    data_loader.desc = "epoch:{}, loss:{:.5f}, acc:{:.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
 
     
     return accu_loss.item()/(i+1), accu_num.item() / sample_num, WP

@@ -95,8 +95,6 @@ def train(args_dict, ddp_gpu=-1):
 
             if (epoch % 5 == 0):
                 save_path = args_dict['model_save_path'] + "/model_{}_{:.5f}_.pth".format(epoch, train_acc)
-                if not os.path.exists(save_path):
-                    os.mkdir(save_path)
                 torch.save(model.state_dict(), save_path)
 
 
