@@ -1,6 +1,9 @@
 device: "0"
 data_path: "./image/diff1107"
 model_save_path: "./result/model"
+use_ddp: True
+port: 8994
+
 spilt_rate: 0.8
 
 batch_size: 48

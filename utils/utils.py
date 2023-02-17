@@ -6,6 +6,7 @@ import torch.nn.functional as F
 from tqdm import tqdm
 from glob import glob
 from torch.utils.data import DataLoader
+from torch.utils.data.distributed import DistributedSampler
 from torch.cuda.amp import autocast as autocast
 from sklearn.metrics import precision_score, recall_score, f1_score, confusion_matrix
 
@@ -47,22 +48,44 @@ def get_loader(args_dict):
 
     train_dataset = ImgDataSet(train_data, train_label, args_dict)
     val_dataset = ImgDataSet(val_data, val_label, args_dict)
-
-    train_loader = DataLoader(
-        train_dataset,
-        batch_size=args_dict['batch_size'],
-        shuffle=True,
-        pin_memory=True,
-        num_workers=args_dict['num_workers'] 
-    )
     
-    val_loader = DataLoader(
-        val_dataset,
-        batch_size=args_dict['batch_size'],
-        shuffle=True,
-        pin_memory=True,
-        num_workers=args_dict['num_workers'] 
-    )
+    if args_dict['use_ddp']:
+        train_sampler = DistributedSampler(train_dataset)
+        val_sampler = DistributedSampler(val_dataset)
+
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args_dict['batch_size'],
+            shuffle=True,
+            pin_memory=True,
+            num_workers=args_dict['num_workers'],
+            sampler=train_sampler
+        )
+        
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=args_dict['batch_size'],
+            shuffle=True,
+            pin_memory=True,
+            num_workers=args_dict['num_workers'],
+            sampler=val_sampler
+        )
+    else:
+        train_loader = DataLoader(
+            train_dataset,
+            batch_size=args_dict['batch_size'],
+            shuffle=True,
+            pin_memory=True,
+            num_workers=args_dict['num_workers'] 
+        )
+        
+        val_loader = DataLoader(
+            val_dataset,
+            batch_size=args_dict['batch_size'],
+            shuffle=True,
+            pin_memory=True,
+            num_workers=args_dict['num_workers'] 
+        )
 
     return train_loader, val_loader
 
