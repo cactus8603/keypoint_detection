@@ -11,7 +11,7 @@ port: 8994
 spilt_rate: 0.8
 
 # data loader
-batch_size: 32
+batch_size: 24
 num_workers: 6
 
 # lr

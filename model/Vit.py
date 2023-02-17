@@ -85,9 +85,8 @@ class PatchEmbeddings(nn.Module):
         x = self.proj(x)
 
         cls_token = repeat(self.cls_token, '() n e -> b n e', b=b)
-        print(x.shape)
-        print(self.pos_embed.shape)
         x = torch.cat([cls_token, x], dim=1)
+        
         return x
 
 ### LayerNorm -> MultiHead -> LayerNorm -> MLP ->  
