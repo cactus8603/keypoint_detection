@@ -12,9 +12,12 @@ Gradient Accumulation
 half-precision
 
 # ToDo
-label smoothe
+position Embeddings
+label smoothe # if need
 pixel Embeddings
 DDP
+
+write comments
 
 
 # Paper

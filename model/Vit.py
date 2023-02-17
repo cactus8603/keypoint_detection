@@ -67,6 +67,9 @@ class PatchEmbeddings(nn.Module):
         self.patch_size = args_dict['patch_size']
         self.in_channels = args_dict['in_channels']
         self.emb_size = args_dict['emb_size']
+
+        self.pos_embed = nn.Parameter(torch.zeros(1, self.patch_size + 1,self.emb_size))
+        
         self.proj = nn.Sequential(
             Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=self.patch_size, s2=self.patch_size),
             nn.Linear(self.patch_size * self.patch_size * self.in_channels, self.emb_size)
@@ -74,6 +77,7 @@ class PatchEmbeddings(nn.Module):
     
     def forward(self, x):
         x = self.proj(x)
+        x = torch.cat([self.pos_embed, x], dim=1)
         return x
 
 ### LayerNorm -> MultiHead -> LayerNorm -> MLP ->  

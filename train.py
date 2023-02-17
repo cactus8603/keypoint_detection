@@ -2,6 +2,7 @@
 import torch
 import cv2
 import os
+os.environ["CUDA_VISIBLE_DEVICES"] = "2"
 import math
 import numpy as np
 import torch.optim.lr_scheduler as lr_scheduler
