@@ -1,4 +1,5 @@
-# Finish
+##### Finish #####
+
 Vit:
     PatchEmbeddings
     MultiHeadAttention
@@ -11,18 +12,27 @@ tensorboard
 Gradient Accumulation
 half-precision
 position Embeddings
+DDP
 
-# ToDo
+##### Finish #####
+
+
+##### ToDo #####
+
+pred function and calculate WP
 label smoothe # if need
 pixel Embeddings
-DDP
 
 write comments
 
+##### ToDo #####
 
-# Paper
+
+##### Paper #####
+
 Vision Transformer:
     PVT
     T2T-ViT-14 
     TNT
 
+##### Paper #####

@@ -31,7 +31,7 @@ def train_ddp(rank, world_size, args_dict):
     port = args_dict['port']
     dist.init_process_group(
         backend='nccl',
-        init_method="tcp://127.0.0.1" + str(port),
+        init_method="tcp://127.0.0.1:" + str(port),
         world_size=world_size,
         rank=rank,
     )
@@ -40,12 +40,12 @@ def train_ddp(rank, world_size, args_dict):
     cleanup()
 
 def train(args_dict, ddp_gpu=-1):
-    cudnn.benchmark = True
+    # cudnn.benchmark = True
     torch.cuda.set_device(ddp_gpu)
     
     train_loader, val_loader = get_loader(args_dict) 
 
-    if is_main_worker():
+    if is_main_worker(ddp_gpu):
         if not os.path.exists(args_dict['model_save_path']):
             os.mkdir(args_dict['model_save_path'])
         tb_writer = SummaryWriter(args_dict['model_save_path'])

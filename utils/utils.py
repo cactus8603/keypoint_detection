@@ -56,7 +56,6 @@ def get_loader(args_dict):
         train_loader = DataLoader(
             train_dataset,
             batch_size=args_dict['batch_size'],
-            shuffle=True,
             pin_memory=True,
             num_workers=args_dict['num_workers'],
             sampler=train_sampler
@@ -65,7 +64,6 @@ def get_loader(args_dict):
         val_loader = DataLoader(
             val_dataset,
             batch_size=args_dict['batch_size'],
-            shuffle=True,
             pin_memory=True,
             num_workers=args_dict['num_workers'],
             sampler=val_sampler
