@@ -1,0 +1,26 @@
+# Finish
+Vit:
+    PatchEmbeddings
+    MultiHeadAttention
+    ClassificationHead
+
+# ToDo
+label smoothe # if need
+pixel Embeddings
+
+DDP
+
+.149
+install venv package
+generate img
+train
+
+
+write comments
+
+# Paper
+Vision Transformer:
+    PVT
+    T2T-ViT-14 
+    TNT
+
