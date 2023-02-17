@@ -93,7 +93,7 @@ def train(args_dict, ddp_gpu=-1):
             tb_writer.add_scalar(tags[3], val_acc, epoch)
             tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
-            if (epoch % 5 == 0):
+            if (epoch % 3 == 0):
                 save_path = args_dict['model_save_path'] + "/model_{}_{:.5f}_.pth".format(epoch, train_acc)
                 torch.save(model.state_dict(), save_path)
 
