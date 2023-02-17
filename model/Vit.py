@@ -4,6 +4,7 @@ import torch.nn.functional as F
 from einops import rearrange, reduce, repeat
 from einops.layers.torch import Rearrange, Reduce
 
+# Residual Block
 class ResidualAdd(nn.Module):
     def __init__(self, fn):
         super().__init__()
@@ -16,6 +17,7 @@ class ResidualAdd(nn.Module):
         
         return x
 
+# Attention 
 class MultiHeadAttention(nn.Module):
     def __init__(self, args_dict):
         super().__init__()
@@ -48,6 +50,7 @@ class MultiHeadAttention(nn.Module):
         out = self.projection(out)
         return out
 
+# MLP
 class FeedForward(nn.Module):
     def __init__(self, emb_size, expansion, drop_p=0):
         super().__init__()
@@ -61,6 +64,7 @@ class FeedForward(nn.Module):
     def forward(self, x):
         return self.net(x)
 
+# Patch Embedding
 class PatchEmbeddings(nn.Module):
     def __init__(self, args_dict):
         super().__init__()
@@ -68,6 +72,7 @@ class PatchEmbeddings(nn.Module):
         self.in_channels = args_dict['in_channels']
         self.emb_size = args_dict['emb_size']
 
+        # position embedding
         self.pos_embed = nn.Parameter(torch.zeros(1, self.patch_size + 1,self.emb_size))
         
         self.proj = nn.Sequential(
