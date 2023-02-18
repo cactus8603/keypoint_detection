@@ -26,6 +26,7 @@ warmup_step: 3
 # othre
 epoch: 1000
 accumulation_step: 2
+cosanneal_cycle: 50
 
 ### Model 
 

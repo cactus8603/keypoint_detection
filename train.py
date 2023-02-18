@@ -58,7 +58,7 @@ def train(args_dict, ddp_gpu=-1):
 
     pg = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
-    lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['epoch'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
+    lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['cosanneal_cycle'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
 
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
     warmup = create_lr_scheduler_with_warmup(
