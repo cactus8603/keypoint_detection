@@ -10,9 +10,10 @@ lr_scheduler
 tensorboard
 Gradient Accumulation
 half-precision
+position Embeddings
 
 # ToDo
-position Embeddings
+
 label smoothe # if need
 pixel Embeddings
 DDP
