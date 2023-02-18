@@ -61,7 +61,7 @@ def train(args_dict, ddp_gpu=-1):
     lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['epoch'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
 
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
-    scheduler = create_lr_scheduler_with_warmup(
+    warmup = create_lr_scheduler_with_warmup(
         scheduler, 
         warmup_start_value=0.0,
         warmup_end_value=0.001,
@@ -83,8 +83,10 @@ def train(args_dict, ddp_gpu=-1):
             args_dict=args_dict
         )
 
-        # scheduler.step()
-        scheduler(None)
+        if epoch < args_dict['warmup_step']:
+            warmup(None)
+        else:
+            scheduler.step()
 
         val_loss, val_acc, WP = evaluate(
             model=model, 
