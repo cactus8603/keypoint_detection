@@ -1,8 +1,7 @@
-
-import torch
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
-
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+os.environ["CUDA_LAUNCH_BLOCKING"] = '1'
+import torch
 import math
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
@@ -10,6 +9,7 @@ import torch.multiprocessing as mp
 import torch.utils.data.distributed
 import torch.optim.lr_scheduler as lr_scheduler
 from torch.nn.parallel import DistributedDataParallel as DDP
+from ignite.handlers import create_lr_scheduler_with_warmup
 from tensorboardX import SummaryWriter
 # from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
 from torch.cuda import amp
@@ -59,7 +59,15 @@ def train(args_dict, ddp_gpu=-1):
     pg = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
     lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['epoch'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
+
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
+    scheduler = create_lr_scheduler_with_warmup(
+        scheduler, 
+        warmup_start_value=0.0,
+        warmup_end_value=0.001,
+        warmup_duration=args_dict['warmup_step'],
+    )
+    
     scaler = amp.GradScaler()
 
     
@@ -93,8 +101,8 @@ def train(args_dict, ddp_gpu=-1):
             tb_writer.add_scalar(tags[3], val_acc, epoch)
             tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
-            if (epoch % 3 == 0):
-                save_path = args_dict['model_save_path'] + "/model_{}_{:.5f}_.pth".format(epoch, train_acc)
+            if (epoch % 2 == 0):
+                save_path = args_dict['model_save_path'] + "/model_{}_{:.3f}_.pth".format(epoch, train_acc)
                 torch.save(model.state_dict(), save_path)
 
 
