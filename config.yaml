@@ -1,6 +1,6 @@
 device: "0,1,2,3"
 data_path: "./image/diff1107"
-model_save_path: "./result/model_Vit_large_warnup"
+model_save_path: "./result/model_Vit_base_warnup2"
 
 ### DDP setting
 use_ddp: True
@@ -27,6 +27,7 @@ lr: 0.001
 lrf: 0.2
 momentum: 0.937
 weight_decay: 0.00005
+warmup: False
 warmup_step: 3
 
 # other
@@ -38,18 +39,18 @@ save_frequency: 2
 ### Model 
 
 # Vit Base
-# patch_size: 16
-# img_size: 224
-# emb_size: 768
-# depth: 12
-# num_heads: 12
-
-# Vit Large
 patch_size: 16
 img_size: 224
-emb_size: 1024
-depth: 24
-num_heads: 16
+emb_size: 768
+depth: 12
+num_heads: 12
+
+# Vit Large
+# patch_size: 16
+# img_size: 224
+# emb_size: 1024
+# depth: 24
+# num_heads: 16
 
 drop_p: 0
 

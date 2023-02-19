@@ -85,12 +85,13 @@ def train(args_dict, ddp_gpu=-1):
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
     
     # setting warm up info
-    warmup = create_lr_scheduler_with_warmup(
-        scheduler, 
-        warmup_start_value=0.0,
-        warmup_end_value=0.001,
-        warmup_duration=args_dict['warmup_step'],
-    )
+    if args_dict['warmup']:
+        warmup = create_lr_scheduler_with_warmup(
+            scheduler, 
+            warmup_start_value=0.0,
+            warmup_end_value=0.001,
+            warmup_duration=args_dict['warmup_step'],
+        )
     
     # setting Automatic mixed precision
     scaler = amp.GradScaler()
@@ -110,7 +111,7 @@ def train(args_dict, ddp_gpu=-1):
         )
 
         # update scheduler 
-        if epoch < args_dict['warmup_step']:
+        if args_dict['warmup']:
             warmup(None)
         else:
             scheduler.step()
