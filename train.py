@@ -53,8 +53,15 @@ def train(args_dict, ddp_gpu=-1):
 
     if args_dict['use_ddp']:
         model = DDP(Vit(args_dict).to(ddp_gpu))
+        if args_dict['load_state']:
+            model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
     else:
         model = Vit(args_dict).to(ddp_gpu)
+
+    if args_dict['skip_epoch'] >= 0 and args_dict['load_state']:
+        start_epoch = args_dict['skip_epoch'] + 1
+    else:
+        start_epoch = 0
 
     pg = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
@@ -70,8 +77,7 @@ def train(args_dict, ddp_gpu=-1):
     
     scaler = amp.GradScaler()
 
-    
-    for epoch in range(args_dict['epoch']):
+    for epoch in range(start_epoch, args_dict['epoch']):
         
         train_loss, train_acc = train_one_epoch(
             model=model, 

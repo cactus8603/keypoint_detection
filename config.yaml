@@ -6,7 +6,15 @@ model_save_path: "./result/model_Vit_large_warnup"
 use_ddp: True
 port: 8994
 
+
+
 ### training setting
+
+# continue training
+load_state: True
+load_model_path: "./result/model_Vit_large_warnup/model_10_0.972_.pth"
+skip_epoch: 10
+
 # data
 spilt_rate: 0.8
 
