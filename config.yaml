@@ -1,6 +1,6 @@
 device: "0,1,2,3"
 data_path: "./image/diff1107"
-model_save_path: "./result/model_Vit_base_warnup2"
+model_save_path: "./result/model_Vit_base"
 
 ### DDP setting
 use_ddp: True
