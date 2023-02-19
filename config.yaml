@@ -1,4 +1,4 @@
-device: "4,5,6,7"
+device: "0,1,2,3"
 data_path: "./image/diff1107"
 model_save_path: "./result/model_Vit_large_warnup"
 
@@ -6,13 +6,11 @@ model_save_path: "./result/model_Vit_large_warnup"
 use_ddp: True
 port: 8994
 
-
-
 ### training setting
 
 # continue training
-load_state: True
-load_model_path: "./result/model_Vit_large_warnup/model_10_0.972_.pth"
+load_state: False
+load_model_path: 
 skip_epoch: 10
 
 # data
@@ -31,10 +29,11 @@ momentum: 0.937
 weight_decay: 0.00005
 warmup_step: 3
 
-# othre
+# other
 epoch: 1000
 accumulation_step: 2
 cosanneal_cycle: 50
+save_frequency: 2
 
 ### Model 
 

@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
 
 import torch
 import math
@@ -41,33 +41,50 @@ def train_ddp(rank, world_size, args_dict):
 
 def train(args_dict, ddp_gpu=-1):
     cudnn.benchmark = True
+
+    # set gpu of each multiprocessing
     torch.cuda.set_device(ddp_gpu)
     
+    # get dataLoader
     train_loader, val_loader = get_loader(args_dict) 
 
+    # check if folder exist and start summarywriter on main worker
     if is_main_worker(ddp_gpu):
         print("Start Training")
         if not os.path.exists(args_dict['model_save_path']):
             os.mkdir(args_dict['model_save_path'])
         tb_writer = SummaryWriter(args_dict['model_save_path'])
 
+    # setting Distributed 
     if args_dict['use_ddp']:
         model = DDP(Vit(args_dict).to(ddp_gpu))
-        if args_dict['load_state']:
-            model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
+
+    # if need load model and keep training
+    if args_dict['load_state']:
+        model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
+        print("Load model successfully")
     else:
         model = Vit(args_dict).to(ddp_gpu)
 
+    # setting the next training epoch of loading model
     if args_dict['skip_epoch'] >= 0 and args_dict['load_state']:
         start_epoch = args_dict['skip_epoch'] + 1
+        if epoch < args_dict['warmup_step']:
+            warmup(None)
+        else:
+            scheduler.step()
     else:
         start_epoch = 0
 
+    # setting optim
     pg = [p for p in model.parameters() if p.requires_grad]
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
+    
+    # setting lr scheduler as cosine annealing
     lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['cosanneal_cycle'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
-
     scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
+    
+    # setting warm up info
     warmup = create_lr_scheduler_with_warmup(
         scheduler, 
         warmup_start_value=0.0,
@@ -75,10 +92,13 @@ def train(args_dict, ddp_gpu=-1):
         warmup_duration=args_dict['warmup_step'],
     )
     
+    # setting Automatic mixed precision
     scaler = amp.GradScaler()
 
+    # start training
     for epoch in range(start_epoch, args_dict['epoch']):
         
+        # train 
         train_loss, train_acc = train_one_epoch(
             model=model, 
             optimizer=opt,
@@ -89,11 +109,13 @@ def train(args_dict, ddp_gpu=-1):
             args_dict=args_dict
         )
 
+        # update scheduler 
         if epoch < args_dict['warmup_step']:
             warmup(None)
         else:
             scheduler.step()
 
+        # eval
         val_loss, val_acc, WP = evaluate(
             model=model, 
             data_loader=val_loader,
@@ -102,6 +124,7 @@ def train(args_dict, ddp_gpu=-1):
             classes=args_dict['n_classes']
         )
 
+        # write info into summarywriter in main worker
         if is_main_worker(ddp_gpu):
             tags = ["train_loss", "train_acc", "val_loss", "val_acc", "lr"]
             tb_writer.add_scalar(tags[0], train_loss, epoch)
@@ -110,27 +133,23 @@ def train(args_dict, ddp_gpu=-1):
             tb_writer.add_scalar(tags[3], val_acc, epoch)
             tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
-            if (epoch % 2 == 0):
+            # save model every two epoch 
+            if (epoch % args_dict['save_frequency'] == 0):
                 save_path = args_dict['model_save_path'] + "/model_{}_{:.3f}_.pth".format(epoch, train_acc)
                 torch.save(model.state_dict(), save_path)
 
-
-
 if __name__ == '__main__':
+
+    # get args
     args = parser_args()
     args_dict = vars(args)
 
-
+    # train in ddp or not
     if args_dict['use_ddp']:
         n_gpus_per_node = torch.cuda.device_count()
         world_size = n_gpus_per_node
         mp.spawn(train_ddp, nprocs=n_gpus_per_node, args=(world_size, args_dict))
     else:
         train(args_dict)
-
-    # model = Vit(args_dict=args_dict)
-    # # summary(model(), (1,3,224,224), device='cpu')
-    # pred = model(x)
-    # print(pred)
 
     
