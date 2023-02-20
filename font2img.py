@@ -8,8 +8,8 @@ from fontTools.ttLib.ttFont import TTFont
 
 parser = argparse.ArgumentParser(description='Obtaining characters from .ttf')
 parser.add_argument('--ttf_path', type=str, default='../../data/Font/diff_font_files_1107',help='ttf directory')
-parser.add_argument('--chara', type=str, default='useword.txt',help='characters')
-parser.add_argument('--save_path', type=str, default='./image/diff1107',help='images directory')
+parser.add_argument('--chara', type=str, default='rareword.txt',help='characters')
+parser.add_argument('--save_path', type=str, default='./image/rare1107',help='images directory')
 parser.add_argument('--img_size', type=int, default=224, help='The size of generated images')
 parser.add_argument('--chara_size', type=int, default=196, help='The size of generated characters')
 # parser.add_argument('--img_size', type=int, default=76, help='The size of generated images')

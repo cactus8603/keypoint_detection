@@ -32,10 +32,10 @@ def eval(args_dict):
     save_path = os.path.dirname(args_dict['load_model_path']) + '/result'
     if not os.path.exists(save_path):
         os.mkdir(save_path)
-    np.savetxt(save_path + '/cm.csv', cm, delimiter=',')
+    # np.savetxt(save_path + '/cm.csv', cm, delimiter=',')
 
     with open(save_path + '/result.txt', 'w') as f:
-        f.write("acc:" + str(val_acc))
+        f.write("acc:" + str(val_acc) + "\n")
         f.write("loss:" + str(val_loss))
 
 
