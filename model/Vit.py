@@ -79,6 +79,7 @@ class PatchEmbeddings(nn.Module):
             Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=self.patch_size, s2=self.patch_size),
             nn.Linear(self.patch_size * self.patch_size * self.in_channels, self.emb_size)
         )
+        self.positions = nn.Parameter(torch.randn((args_dict['img_size'] // args_dict['emb_size']) **2 + 1, args_dict['emb_size']))
     
     def forward(self, x):
         b, _, _, _ = x.shape
@@ -86,6 +87,7 @@ class PatchEmbeddings(nn.Module):
 
         cls_token = repeat(self.cls_token, '() n e -> b n e', b=b)
         x = torch.cat([cls_token, x], dim=1)
+        x += self.positions
         
         return x
 
@@ -118,6 +120,36 @@ class TransformerEncoder(nn.Module):
     def forward(self, x):
         return self.TransformerEncoder(x)
     
+class TransformerDecoderBlock(nn.Sequential):
+    def __init__(self, args_dict):
+        super().__init__(
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(args_dict['decoder_embed_dim']),
+                MultiHeadAttention(args_dict),
+                nn.Dropout(args_dict['drop_p'])
+            )),
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(args_dict['decoder_embed_dim']),
+                FeedForward(args_dict['decoder_embed_dim'], args_dict['expansion'], args_dict['drop_p']),
+                nn.Dropout(args_dict['drop_p'])
+            ))
+        )
+
+class TransformerDecoder(nn.Module):
+    def __init__(self, args_dict):
+        super().__init__()
+        self.deocder_embed = nn.Linear(args_dict['emb_size'], args_dict['decoder_embed_dim'], bias=True)
+        self.decoder_pos_embed = nn.Parameter(torch.zeros(1, args_dict['patch_size']+1))
+        self.TransformerDecoder = nn.Sequential(
+            *[TransformerDecoderBlock(args_dict) for _ in range(args_dict['decoder_depth'])]
+        )
+
+    def forward(self, x):
+        x = self.deocder_embed(x)
+        x = torch.cat([x[:, 1:,:], x], dim=1)
+
+        return 
+
 class ClassificationHead(nn.Module):
     def __init__(self, args_dict):
         super().__init__()

@@ -117,7 +117,7 @@ def train(args_dict, ddp_gpu=-1):
             scheduler.step()
 
         # eval
-        val_loss, val_acc, WP = evaluate(
+        val_loss, val_acc = evaluate(
             model=model, 
             data_loader=val_loader,
             device=ddp_gpu,
