@@ -1,6 +1,6 @@
-device: "4,5,6,7"
+device: "0,1,2,3"
 data_path: "./image/diff1107"
-model_save_path: "./result/model_Vit_large_warmup"
+model_save_path: "./result/model_Vit_base_warmup5"
 
 ### DDP setting
 use_ddp: True
@@ -8,9 +8,11 @@ port: 8994
 
 ### training setting
 
+# eval
+load_model_path: ./result/model_Vit_base_warmup5/1.pt
+
 # continue training
 load_state: False
-load_model_path: 
 skip_epoch: 10
 
 # data
@@ -28,10 +30,10 @@ lrf: 0.2
 momentum: 0.937
 weight_decay: 0.00005
 warmup: False
-warmup_step: 3
+warmup_step: 5
 
 # other
-epoch: 1000
+epoch: 50
 accumulation_step: 2
 cosanneal_cycle: 50
 save_frequency: 2
@@ -39,18 +41,18 @@ save_frequency: 2
 ### Model 
 
 # Vit Base
-# patch_size: 16
-# img_size: 224
-# emb_size: 768
-# depth: 12
-# num_heads: 12
-
-# Vit Large
 patch_size: 16
 img_size: 224
-emb_size: 1024
-depth: 24
-num_heads: 16
+emb_size: 768
+depth: 12
+num_heads: 12
+
+# Vit Large
+# patch_size: 16
+# img_size: 224
+# emb_size: 1024
+# depth: 24
+# num_heads: 16
 
 drop_p: 0
 

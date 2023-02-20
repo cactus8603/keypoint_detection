@@ -175,7 +175,8 @@ def evaluate(model, data_loader, device, epoch, classes):
     sample_num = 0
     data_loader = tqdm(data_loader)
 
-    # cm = np.zeros((classes, classes),dtype=float)
+    if epoch==-1:
+        cm = np.zeros((classes, classes),dtype=float)
 
     for i, (img, label) in enumerate(data_loader):
         img, label = img.to(device), label.to(device)
@@ -191,13 +192,15 @@ def evaluate(model, data_loader, device, epoch, classes):
         loss = loss_function(pred, label)
         accu_loss += loss
 
-        # cm += get_confusion_matrix(label.argmax(1), p.argmax(1), classes)
+        if epoch==-1:
+            cm += get_confusion_matrix(label.argmax(1), p.argmax(1), classes)
 
-    # WP = WP_score(cm, classes) / sample_num
-    WP = 0
+    if epoch==-1:
+        WP = WP_score(cm, classes) / sample_num
 
     data_loader.desc = "epoch:{}, loss:{:.5f}, acc:{:.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
 
-    
-    return accu_loss.item()/(i+1), accu_num.item() / sample_num, WP
-
+    if epoch==-1:
+        return accu_loss.item()/(i+1), accu_num.item() / sample_num, cm
+    else:
+        return accu_loss.item()/(i+1), accu_num.item() / sample_num

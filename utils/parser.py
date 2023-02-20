@@ -9,7 +9,9 @@ def create_parser():
     return args
 
 def parser_args():
+
     args = create_parser()
+
     if args.config_path:
         with open(args.config_path, 'r') as f:
             data = yaml.load(f, Loader=yaml.FullLoader)
