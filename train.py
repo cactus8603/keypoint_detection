@@ -16,7 +16,7 @@ from torch.cuda import amp
 from utils.dataset import ImgDataSet
 from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
-from model.module import Vit
+from model.vit import Vit
 
 
 def cleanup():
