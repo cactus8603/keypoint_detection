@@ -29,6 +29,7 @@ write comments
 
 experiment:
 generate words except 4808 common used words and test accuracy
+Rethinking and Improving Relative Position Encoding for Vision Transformer
 test words accuracy that MX-Font generate, including ROC, AUC, f1 score
 
 
@@ -43,4 +44,12 @@ Vision Transformer:
     TNT
     CPVT
 
+VAE 
+diffusion model
+
 ##### Paper #####
+
+
+##### Issue #####
+accuracy decrease after add position embedding
+

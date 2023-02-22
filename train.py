@@ -9,14 +9,14 @@ import torch.multiprocessing as mp
 import torch.utils.data.distributed
 import torch.optim.lr_scheduler as lr_scheduler
 from torch.nn.parallel import DistributedDataParallel as DDP
-from ignite.handlers import create_lr_scheduler_with_warmup
+# from ignite.handlers import create_lr_scheduler_with_warmup
 from tensorboardX import SummaryWriter
 # from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
 from torch.cuda import amp
 from utils.dataset import ImgDataSet
 from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
-from model.Vit import Vit
+from model.module import Vit
 
 
 def cleanup():
