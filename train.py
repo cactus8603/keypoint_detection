@@ -9,7 +9,7 @@ import torch.multiprocessing as mp
 import torch.utils.data.distributed
 import torch.optim.lr_scheduler as lr_scheduler
 from torch.nn.parallel import DistributedDataParallel as DDP
-# from ignite.handlers import create_lr_scheduler_with_warmup
+from ignite.handlers import create_lr_scheduler_with_warmup
 from tensorboardX import SummaryWriter
 # from torchvision.transforms import Compose, Resize, ToTensor, ToPILImage
 from torch.cuda import amp
