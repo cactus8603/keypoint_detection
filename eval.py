@@ -6,7 +6,7 @@ import numpy as np
 
 from utils.utils import get_eval_loader, evaluate
 from utils.parser import parser_args
-from model.module import vit
+from model.vit import Vit
 
 def eval(args_dict):
 

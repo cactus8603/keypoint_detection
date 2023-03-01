@@ -135,7 +135,7 @@ def train(args_dict, ddp_gpu=-1):
             tb_writer.add_scalar(tags[4], opt.param_groups[0]['lr'], epoch)
 
             # save model every two epoch 
-            if (epoch % args_dict['save_frequency'] == 0):
+            if (epoch % args_dict['save_frequency'] == 0 and epoch >= 10):
                 save_path = args_dict['model_save_path'] + "/model_{}_{:.3f}_.pth".format(epoch, train_acc)
                 torch.save(model.state_dict(), save_path)
 

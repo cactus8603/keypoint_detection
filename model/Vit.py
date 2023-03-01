@@ -1,6 +1,97 @@
 from torch import nn
+import torch
+import torch.nn.functional as F
+from einops import rearrange, reduce, repeat
+from einops.layers.torch import Rearrange, Reduce
+from .module import ResidualAdd, MultiHeadAttention
 
-from .module import PatchEmbeddings, TransformerEncoder, ClassificationHead
+# Patch + Position Embedding
+class PatchEmbeddings(nn.Module):
+    def __init__(self, args_dict):
+        super().__init__()
+        self.patch_size = args_dict['patch_size']
+        self.in_channels = args_dict['in_channels']
+        self.emb_size = args_dict['emb_size']
+
+        
+        self.cls_token = nn.Parameter(torch.randn(1, 1, self.emb_size))
+        
+        self.proj = nn.Sequential(
+            nn.Conv2d(self.in_channels, self.emb_size, kernel_size=self.patch_size, stride=self.patch_size), #  1,768,14,14
+            Rearrange('b e (h) (w) -> b (h w) e'), # 1, 196, 768
+        )
+
+        # position embedding
+        # self.positions = nn.Parameter(torch.randn((args_dict['img_size'] // args_dict['emb_size']) **2 + 1, args_dict['emb_size']))
+    
+    def forward(self, x):
+        b, _, _, _ = x.shape
+        x = self.proj(x)
+
+        cls_token = repeat(self.cls_token, '() n e -> b n e', b=b)
+        x = torch.cat([cls_token, x], dim=1)
+
+        # position embedding
+        # x += self.positions
+        
+        return x
+    
+# MLP
+class FeedForward(nn.Module):
+    def __init__(self, emb_size, expansion, drop_p=0):
+        super().__init__()
+        self.net = nn.Sequential(
+            nn.Linear(emb_size, expansion * emb_size),
+            nn.GELU(),
+            nn.Dropout(drop_p),
+            nn.Linear(expansion * emb_size, emb_size),
+            nn.Dropout(drop_p),
+        )
+    def forward(self, x):
+        return self.net(x)
+
+class TransformerEncoderBlock(nn.Module):
+    def __init__(self, args_dict):
+        super().__init__()
+        self.encoderblock = nn.Sequential(
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(args_dict['emb_size']),
+                MultiHeadAttention(args_dict),
+                nn.Dropout(args_dict['drop_p'])
+            )),
+            ResidualAdd(nn.Sequential(
+                nn.LayerNorm(args_dict['emb_size']),
+                FeedForward(args_dict['emb_size'], args_dict['expansion'], args_dict['drop_p']),
+                nn.Dropout(args_dict['drop_p'])
+            ))
+        )
+    def forward(self, x):
+        return self.encoderblock(x) 
+    
+class TransformerEncoder(nn.Module):
+    def __init__(self, args_dict):
+        super().__init__()
+ 
+        self.TransformerEncoder = nn.Sequential(
+            *[TransformerEncoderBlock(args_dict) for _ in range(args_dict['depth'])]
+        )
+
+    def forward(self, x):
+
+        x = self.TransformerEncoder(x)
+        return x
+    
+class ClassificationHead(nn.Module):
+    def __init__(self, args_dict):
+        super().__init__()
+        self.ClassificationHead = nn.Sequential(
+            Reduce('b n e -> b e', reduction='mean'),
+            nn.LayerNorm(args_dict['emb_size']),
+            nn.Linear(args_dict['emb_size'], args_dict['n_classes'])
+        )
+    
+    def forward(self, x):
+        return self.ClassificationHead(x)
 
 class Vit(nn.Module):
     def __init__(self, args_dict):

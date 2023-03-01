@@ -76,12 +76,14 @@ class PatchEmbeddings(nn.Module):
         self.cls_token = nn.Parameter(torch.randn(1, 1, self.emb_size))
         
         self.proj = nn.Sequential(
-            nn.Conv2d(self.in_channels, self.emb_size, kernel_size=self.patch_size, stride=self.patch_size), #  1,768,14,14
-            Rearrange('b e (h) (w) -> b (h w) e'), # 1, 196, 768
+            Rearrange('b c (h s1) (w s2) -> b (h w) (s1 s2 c)', s1=self.patch_size, s2=self.patch_size),
+            nn.Linear(self.patch_size * self.patch_size * self.in_channels, self.emb_size)
+            # nn.Conv2d(self.in_channels, self.emb_size, kernel_size=self.patch_size, stride=self.patch_size), #  1,768,14,14
+            # Rearrange('b e (h) (w) -> b (h w) e'), # 1, 196, 768
         )
 
         # position embedding
-        self.positions = nn.Parameter(torch.randn((args_dict['img_size'] // args_dict['emb_size']) **2 + 1, args_dict['emb_size']))
+        # self.positions = nn.Parameter(torch.randn((args_dict['img_size'] // args_dict['emb_size']) **2 + 1, args_dict['emb_size']))
     
     def forward(self, x):
         b, _, _, _ = x.shape
