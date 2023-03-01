@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
 
 import torch
 import math
@@ -48,6 +48,10 @@ def train(args_dict, ddp_gpu=-1):
     # get dataLoader
     train_loader, val_loader = get_loader(args_dict) 
 
+    # setting Distributed 
+    if args_dict['use_ddp']:
+        model = DDP(Vit(args_dict).to(ddp_gpu))
+
     # check if folder exist and start summarywriter on main worker
     if is_main_worker(ddp_gpu):
         print("Start Training")
@@ -55,9 +59,9 @@ def train(args_dict, ddp_gpu=-1):
             os.mkdir(args_dict['model_save_path'])
         tb_writer = SummaryWriter(args_dict['model_save_path'])
 
-    # setting Distributed 
-    if args_dict['use_ddp']:
-        model = DDP(Vit(args_dict).to(ddp_gpu))
+        # save the whole model at first time to avoid loss model
+        save_path = args_dict['model_save_path'] + "init_model.pt"
+        torch.save(model, save_path)
 
     # if need load model and keep training
     if args_dict['load_state']:
