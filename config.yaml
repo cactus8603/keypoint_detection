@@ -8,13 +8,13 @@ val_data_path: "./image/rare1107"
 model_save_path: "./result/Vit_base_pos_warmup3"
 
 ### DDP setting
-use_ddp: True
+use_ddp: False
 port: 8888 # 8994
 
 ### training setting
 
 # eval
-load_model_path: "./result/eval/vit_base_warmup3_non_pos/model_32_0.993_.pth"
+load_model_path: "./result/pos/Vit_large_pos_warmup3/model_34_0.998_.pth"
 
 # continue training
 load_state: False
@@ -28,7 +28,7 @@ batch_size: 32
 num_workers: 6
 
 # lr
-lr: 0.01
+lr: 0.001
 
 # scheduler
 lrf: 0.005
@@ -36,29 +36,29 @@ momentum: 0.937
 weight_decay: 0.00005
 warmup: True
 warmup_step: 3
-warmup_start_value: 0.001
+warmup_start_value: 0.0001
 
 # other
 epoch: 50
 accumulation_step: 2
-cosanneal_cycle: 20
+cosanneal_cycle: 30
 save_frequency: 2
 
 ### Model 
 
 # Vit Base
-patch_size: 16
-img_size: 224
-emb_size: 768
-depth: 12
-num_heads: 12
-
-# Vit Large
 # patch_size: 16
 # img_size: 224
-# emb_size: 1024
-# depth: 24
-# num_heads: 16
+# emb_size: 768
+# depth: 12
+# num_heads: 12
+
+# Vit Large
+patch_size: 16
+img_size: 224
+emb_size: 1024
+depth: 24
+num_heads: 16
 
 decoder_embed_dim: 768
 decoder_depth: 8
