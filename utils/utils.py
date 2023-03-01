@@ -49,6 +49,7 @@ def get_loader(args_dict):
     train_dataset = ImgDataSet(train_data, train_label, args_dict)
     val_dataset = ImgDataSet(val_data, val_label, args_dict)
     
+
     if args_dict['use_ddp']:
         train_sampler = DistributedSampler(train_dataset)
         val_sampler = DistributedSampler(val_dataset)
@@ -86,6 +87,35 @@ def get_loader(args_dict):
         )
 
     return train_loader, val_loader
+
+def get_val_loader(args_dict):
+    font_class = glob(os.path.join(args_dict['val_data_path'], '*'))
+    font_class.sort()
+    font_class_indices = dict((k, v) for v, k in enumerate(font_class))
+    # print(font_class_indices)
+
+    val_data = []
+    val_label = []
+
+    for cla in font_class:
+        img = glob(os.path.join(cla, '*'))
+        img_class = font_class_indices[cla]
+
+        for img_path in img:
+            val_data.append(img_path)
+            val_label.append(img_class)
+
+    val_dataset = ImgDataSet(val_data, val_label, args_dict)
+
+    val_loader = DataLoader(
+        val_dataset,
+        batch_size=args_dict['batch_size'],
+        shuffle=True,
+        pin_memory=True,
+        num_workers=args_dict['num_workers'] 
+    )
+
+    return val_loader
 
 def get_confusion_matrix(y_true, y_pred, classes):
     y_true, y_pred = y_true.cpu().detach().numpy() , y_pred.cpu().detach().numpy() 

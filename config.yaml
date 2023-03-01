@@ -3,7 +3,7 @@ device: "4,5,6,7"
 # for train data
 data_path: "./image/diff1107"
 # for eval data
-# data_path: "./image/rare1107"
+val_data_path: "./image/rare1107"
 
 model_save_path: "./result/Vit_large_pos_warmup3"
 
@@ -14,7 +14,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-# load_model_path: "./result/model_Vit_large_warmup/model_18_0.985_.pth"
+load_model_path: "./result/vit_base_warmup3_non_pos/model_32_0.993_.pth"
 
 # continue training
 load_state: False

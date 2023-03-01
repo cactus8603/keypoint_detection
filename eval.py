@@ -4,7 +4,7 @@ os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 import torch
 import numpy as np
 
-from utils.utils import get_loader, evaluate
+from utils.utils import get_eval_loader, evaluate
 from utils.parser import parser_args
 from model.module import Vit
 
@@ -13,7 +13,7 @@ def eval(args_dict):
     device = torch.device("cuda")
 
     # get dataLoader
-    train_loader, val_loader = get_loader(args_dict) 
+    val_loader = get_eval_loader(args_dict) 
     
     # load model 
     model = Vit(args_dict).to(device)
@@ -37,8 +37,6 @@ def eval(args_dict):
     with open(save_path + '/result.txt', 'w') as f:
         f.write("acc:" + str(val_acc) + "\n")
         f.write("loss:" + str(val_loss))
-
-
 
 
 if __name__ == '__main__':
