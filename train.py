@@ -81,10 +81,10 @@ def train(args_dict, ddp_gpu=-1):
     opt = torch.optim.SGD(pg, lr=args_dict['lr'], momentum=args_dict['momentum'], weight_decay=args_dict['weight_decay'])
     
     # setting lr scheduler as cosine annealing
-    # lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['cosanneal_cycle'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
-    # scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
+    lf = lambda x: ((1 + math.cos(x * math.pi / args_dict['cosanneal_cycle'])) / 2) * (1 - args_dict['lrf']) + args_dict['lrf']
+    scheduler = lr_scheduler.LambdaLR(optimizer=opt, lr_lambda=lf)
 
-    scheduler = lr_scheduler.StepLR(opt, step_size=3, gamma=0.1)
+    # scheduler = lr_scheduler.StepLR(opt, step_size=3, gamma=0.1)
     
     # setting warm up info
     if args_dict['warmup']:
