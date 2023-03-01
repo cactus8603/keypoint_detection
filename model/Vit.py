@@ -79,6 +79,9 @@ class PatchEmbeddings(nn.Module):
             nn.Conv2d(self.in_channels, self.emb_size, kernel_size=self.patch_size, stride=self.patch_size), #  1,768,14,14
             Rearrange('b e (h) (w) -> b (h w) e'), # 1, 196, 768
         )
+
+        # position embedding
+        self.positions = nn.Parameter(torch.randn((args_dict['img_size'] // args_dict['emb_size']) **2 + 1, args_dict['emb_size']))
     
     def forward(self, x):
         b, _, _, _ = x.shape
@@ -86,6 +89,9 @@ class PatchEmbeddings(nn.Module):
 
         cls_token = repeat(self.cls_token, '() n e -> b n e', b=b)
         x = torch.cat([cls_token, x], dim=1)
+
+        # position embedding
+        x += self.positions
         
         return x
 
