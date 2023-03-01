@@ -5,7 +5,7 @@ data_path: "./image/diff1107"
 # for eval data
 val_data_path: "./image/rare1107"
 
-model_save_path: "./result/Vit_base_non_pos_warmup0"
+model_save_path: "./result/Vit_base_pos_warmup0"
 
 ### DDP setting
 use_ddp: True
