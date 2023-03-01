@@ -1,11 +1,11 @@
-device: "4,5,6,7"
+device: "0,1,2,3,4,5,6,7"
 
 # for train data
 data_path: "./image/diff1107"
 # for eval data
 val_data_path: "./image/rare1107"
 
-model_save_path: "./result/Vit_base_non_pos_warmup3"
+model_save_path: "./result/Vit_base_non_pos_warmup0"
 
 ### DDP setting
 use_ddp: True
@@ -14,7 +14,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-load_model_path: "./result/vit_base_warmup3_non_pos/model_32_0.993_.pth"
+load_model_path: "./result/eval/vit_base_warmup3_non_pos/model_32_0.993_.pth"
 
 # continue training
 load_state: False
@@ -34,8 +34,9 @@ lr: 0.001
 lrf: 0.2
 momentum: 0.937
 weight_decay: 0.00005
-warmup: True
+warmup: False
 warmup_step: 3
+warmup_start_value: 0.0
 
 # other
 epoch: 50

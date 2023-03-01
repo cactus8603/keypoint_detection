@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
 
 import torch
 import math
@@ -88,8 +88,8 @@ def train(args_dict, ddp_gpu=-1):
     if args_dict['warmup']:
         warmup = create_lr_scheduler_with_warmup(
             scheduler, 
-            warmup_start_value=0.0,
-            warmup_end_value=0.001,
+            warmup_start_value=args_dict['warmup_start_value'],
+            warmup_end_value=args_dict['lr'],
             warmup_duration=args_dict['warmup_step'],
         )
     
