@@ -13,7 +13,6 @@ from sklearn.metrics import precision_score, recall_score, f1_score, confusion_m
 from .dataset import ImgDataSet
 
 def read_spilt_data(args_dict):
-    random.seed(0)
     assert os.path.exists(args_dict['data_path']), "data path:{} does not exist".format(args_dict['data_path'])
 
     font_class = glob(os.path.join(args_dict['data_path'], '*'))

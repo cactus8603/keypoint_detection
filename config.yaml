@@ -1,14 +1,14 @@
-device: "0,1,2,3"
+device: "4,5,6,7"
 
 # for train data
 data_path: "./image/diff1107"
 # for eval data
 val_data_path: "./image/rare1107"
 
-model_save_path: "./result/Vit_base_pos_warmup3/"
+model_save_path: "./result/Vit_large_pos_warmup3/"
 
 ### DDP setting
-use_ddp: False
+use_ddp: True
 port: 8888 # 8994
 
 ### training setting

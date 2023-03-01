@@ -1,8 +1,10 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3"
+os.environ["CUDA_VISIBLE_DEVICES"] = "4,5,6,7"
+import random
 
 import torch
 import math
+import numpy as np
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -18,6 +20,16 @@ from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
 from model.vit import Vit
 
+def init():
+    seed = 8603
+    torch.manual_seed(seed)
+    torch.cuda.manual_seed(seed)
+    torch.cuda.manual_seed_all(seed)
+    np.random.seed(seed)
+    random.seed(seed)
+    torch.backends.cudnn.benchmark = True
+    torch.backends.cudnn.deterministic = True
+
 
 def cleanup():
     dist.destroy_process_group()
@@ -27,7 +39,7 @@ def is_main_worker(gpu):
 
 # mp.spawn will pass the value "gpu" as rank
 def train_ddp(rank, world_size, args_dict):
-    cudnn.benchmark = True
+
     port = args_dict['port']
     dist.init_process_group(
         backend='nccl',
@@ -60,6 +72,7 @@ def train(args_dict, ddp_gpu=-1):
         tb_writer = SummaryWriter(args_dict['model_save_path'])
 
         # save the whole model at first time to avoid loss model
+        print("Save init model")
         save_path = args_dict['model_save_path'] + "init_model.pt"
         torch.save(model, save_path)
 
@@ -146,6 +159,7 @@ def train(args_dict, ddp_gpu=-1):
                 torch.save(model.state_dict(), save_path)
 
 if __name__ == '__main__':
+    init()
 
     # get args
     args = parser_args()
