@@ -88,7 +88,7 @@ def get_loader(args_dict):
 
     return train_loader, val_loader
 
-def get_val_loader(args_dict):
+def get_eval_loader(args_dict):
     font_class = glob(os.path.join(args_dict['val_data_path'], '*'))
     font_class.sort()
     font_class_indices = dict((k, v) for v, k in enumerate(font_class))
