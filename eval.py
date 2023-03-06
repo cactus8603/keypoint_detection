@@ -17,7 +17,9 @@ def eval(args_dict):
     train_loader, val_loader = get_loader(args_dict) 
     
     # load model 
-    model = Vit(args_dict).to(device)
+    # model = Vit(args_dict).to(device)
+    init_model_path = os.path.dirname(args_dict['load_model_path']) + "/init_model.pt"
+    model = torch.load(init_model_path)
     model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
     print("Load model successfully")
 

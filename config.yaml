@@ -14,7 +14,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-load_model_path: 
+load_model_path: "result/Vit_large_pos_warmup3/model_34_0.997_.pth"
 
 # continue training
 load_state: False
