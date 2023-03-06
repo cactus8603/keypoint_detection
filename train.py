@@ -74,7 +74,8 @@ def train(args_dict, ddp_gpu=-1):
         # save the whole model at first time to avoid loss model
         print("Save init model")
         save_path = args_dict['model_save_path'] + "init_model.pt"
-        torch.save(model, save_path)
+        tmp_model = Vit(args_dict)
+        torch.save(tmp_model, save_path)
 
     # if need load model and keep training
     if args_dict['load_state']:
