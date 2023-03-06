@@ -8,8 +8,8 @@ from fontTools.ttLib.ttFont import TTFont
 
 parser = argparse.ArgumentParser(description='Obtaining characters from .ttf')
 parser.add_argument('--ttf_path', type=str, default='../../data/Font/diff_font_files_1107',help='ttf directory')
-parser.add_argument('--chara', type=str, default='rareword.txt',help='characters')
-parser.add_argument('--save_path', type=str, default='./image/rare1107',help='images directory')
+parser.add_argument('--chara', type=str, default='./word_list/all_word.txt',help='characters')
+parser.add_argument('--save_path', type=str, default='./image/all_word',help='images directory')
 parser.add_argument('--img_size', type=int, default=224, help='The size of generated images')
 parser.add_argument('--chara_size', type=int, default=196, help='The size of generated characters')
 # parser.add_argument('--img_size', type=int, default=76, help='The size of generated images')
@@ -35,6 +35,9 @@ def draw_example(ch, src_font, canvas_size, x_offset, y_offset):
     example_img.paste(src_img, (0, 0))
     return example_img
 
+if not os.path.exists(args.save_path):
+     os.mkdir(args.save_path)
+
 data_dir = args.ttf_path
 data_root = pathlib.Path(data_dir)
 # print(data_root)
@@ -46,7 +49,7 @@ all_image_paths = [str(path) for path in all_image_paths]
 # print(len(all_image_paths))
 # for i in range (len(all_image_paths)):
 #     print(all_image_paths[i])
-print(all_image_paths)
+# print(all_image_paths)
 
 seq = list()
 
