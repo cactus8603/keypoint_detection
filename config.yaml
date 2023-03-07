@@ -1,11 +1,11 @@
-device: "0,1,2,3"
+device: "0,1,2,3,4,5,6,7"
 
 # for train data
-data_path: "./image/diff1107"
+data_path: "./image/all_word"
 # for eval data
 val_data_path: "./image/rare1107"
 
-model_save_path: "./result/Vit_base_pos_warmup3/"
+model_save_path: "./result/all15000/Vit_large_pos_warmup3/"
 
 ### DDP setting
 use_ddp: True
@@ -14,7 +14,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-load_model_path: "result/Vit_large_pos_warmup3/model_34_0.997_.pth"
+# load_model_path: "result/Vit_large_pos_warmup3/model_34_0.997_.pth"
 
 # continue training
 load_state: False
@@ -24,7 +24,7 @@ skip_epoch: 10
 spilt_rate: 0.8
 
 # data loader
-batch_size: 64
+batch_size: 128 # 64
 num_workers: 6
 
 # lr
@@ -39,26 +39,26 @@ warmup_step: 3
 warmup_start_value: 0.0001
 
 # other
-epoch: 50
+epoch: 500
 accumulation_step: 2
-cosanneal_cycle: 30
+cosanneal_cycle: 50 # 30
 save_frequency: 2
 
 ### Model 
 
 # Vit Base
-patch_size: 16
-img_size: 224
-emb_size: 768
-depth: 12
-num_heads: 12
-
-# Vit Large
 # patch_size: 16
 # img_size: 224
-# emb_size: 1024
-# depth: 24
-# num_heads: 16
+# emb_size: 768
+# depth: 12
+# num_heads: 12
+
+# Vit Large
+patch_size: 16
+img_size: 224
+emb_size: 1024
+depth: 24
+num_heads: 16
 
 decoder_embed_dim: 768
 decoder_depth: 8
