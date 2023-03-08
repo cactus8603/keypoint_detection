@@ -26,6 +26,13 @@ class MultiHeadAttention(nn.Module):
         self.qkv = nn.Linear(self.emb_size, self.emb_size * 3)
         self.att_drop = nn.Dropout(args_dict['drop_p'])
         self.projection = nn.Linear(self.emb_size, self.emb_size)
+        self.reAttention = args_dict['reAttention']
+
+        # re attention
+        if self.reAttention:
+            self.reAtten_matrix = nn.Conv2d(self.num_heads, self.num_heads, 1, 1)
+            self.var_norm = nn.BatchNorm2d(self.num_heads)
+            self.raAtten_scale = 1
         
     def forward(self, x, mask=None):
 
@@ -45,9 +52,14 @@ class MultiHeadAttention(nn.Module):
         att = F.softmax(energy, dim=-1) / scaling
         att = self.att_drop(att)
 
+        # re attention
+        if self.reAttention:
+            att = self.var_norm(self.reAtten_matrix(att)) * self.raAtten_scale
+
         out = torch.einsum('bhal, bhlv -> bhav ', att, v)
         out = rearrange(out, "b h n d -> b n (h d)")
         out = self.projection(out)
+
         return out
 
 # MLP
