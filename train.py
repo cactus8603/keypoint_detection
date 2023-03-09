@@ -1,5 +1,5 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7,8"
 import random
 
 import torch
@@ -20,8 +20,8 @@ from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
 from model.vit import Vit
 
-def init():
-    seed = 8603
+def init(seed):
+    seed = seed
     torch.manual_seed(seed)
     torch.cuda.manual_seed(seed)
     torch.cuda.manual_seed_all(seed)
@@ -59,6 +59,7 @@ def train(args_dict, ddp_gpu=-1):
     
     # get dataLoader
     train_loader, val_loader = get_loader(args_dict) 
+    print("Get data loader successfully")
 
     # setting Distributed 
     if args_dict['use_ddp']:
@@ -160,11 +161,12 @@ def train(args_dict, ddp_gpu=-1):
                 torch.save(model.state_dict(), save_path)
 
 if __name__ == '__main__':
-    init()
 
     # get args
     args = parser_args()
     args_dict = vars(args)
+
+    init(args_dict['seed'])
 
     # train in ddp or not
     if args_dict['use_ddp']:

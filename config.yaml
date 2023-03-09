@@ -1,11 +1,13 @@
 device: "0,1,2,3,4,5,6,7"
 
-# for train data
-data_path: "./image/all_word"
-# for eval data
-val_data_path: "./image/rare1107"
+seed: 8603
 
-model_save_path: "./result/all15000/Vit_large_pos_warmup3/"
+# for train data
+data_path: "./image/all_word" # "./image/diff1107" 
+# for eval data
+val_data_path: # "./image/rare1107"
+
+model_save_path: "./result/all15000/Vit_large_pos_warmup3_raAttn/"
 
 ### DDP setting
 use_ddp: True
@@ -14,7 +16,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-# load_model_path: "result/Vit_large_pos_warmup3/model_34_0.997_.pth"
+load_model_path: "result/all15000/Vit_large_pos_warmup3/model_40_0.998_.pth"
 
 # continue training
 load_state: False
@@ -24,7 +26,7 @@ skip_epoch: 10
 spilt_rate: 0.8
 
 # data loader
-batch_size: 128 # 64
+batch_size: 64
 num_workers: 6
 
 # lr
@@ -40,9 +42,10 @@ warmup_start_value: 0.0001
 
 # other
 epoch: 500
-accumulation_step: 2
+accumulation_step: 8
 cosanneal_cycle: 50 # 30
 save_frequency: 2
+reAttention: True
 
 ### Model 
 
