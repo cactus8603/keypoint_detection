@@ -9,7 +9,7 @@ from fontTools.ttLib.ttFont import TTFont
 parser = argparse.ArgumentParser(description='Obtaining characters from .ttf')
 parser.add_argument('--ttf_path', type=str, default='../../data/Font/diff_font_files_1107',help='ttf directory')
 parser.add_argument('--chara', type=str, default='./word_list/all_word.txt',help='characters')
-parser.add_argument('--save_path', type=str, default='./image/all_word',help='images directory')
+parser.add_argument('--save_path', type=str, default='./image/all_word_byUnicode',help='images directory')
 parser.add_argument('--img_size', type=int, default=224, help='The size of generated images')
 parser.add_argument('--chara_size', type=int, default=196, help='The size of generated characters')
 # parser.add_argument('--img_size', type=int, default=76, help='The size of generated images')
@@ -59,18 +59,35 @@ for (label,item) in zip(range(len(all_image_paths)),all_image_paths):
     # print(os.path.basename(item).split('.')[0])
     # label += 193
     for (chara,cnt) in zip(characters, range(len(characters))):
-        # trans usuall words to utf-8
+
+        ### save img by font
+        # # trans usuall words to utf-8
+        # t = str(chara.encode('unicode_escape').decode('utf-8')[1:].upper()) + '_' + str(os.path.basename(item).split('.')[0])
+        # # trans rare words to uni-han
+        # # t = str(chara.encode('unicode_escape').decode('utf-8')[5:14].upper())
+        # print('chara:{}, src_font:{}, arg.img_size:{}'.format(t, src_font, args.img_size))
+        # img = draw_example(chara, src_font, args.img_size, (args.img_size-args.chara_size)/2, (args.img_size-args.chara_size)/2)
+        # font_name = os.path.splitext(os.path.basename(item))[0]
+        # path_full = os.path.join(args.save_path, font_name)
+        
+        # if not os.path.exists(path_full):
+        #     os.mkdir(path_full)
+        # img = img.convert('L')
+        # # img.save(os.path.join(path_full, "%04d.png" % (cnt)))
+        # img.save(os.path.join(path_full, "%s.png" % (t)))
+
+
+        ### save img by unicode
         t = str(chara.encode('unicode_escape').decode('utf-8')[1:].upper()) + '_' + str(os.path.basename(item).split('.')[0])
-        # trans rare words to uni-han
-        # t = str(chara.encode('unicode_escape').decode('utf-8')[5:14].upper())
-        print('chara:{}, src_font:{}, arg.img_size:{}'.format(t, src_font, args.img_size))
+        uni = str(chara.encode('unicode_escape').decode('utf-8')[1:].upper())
+        font = str(os.path.basename(item).split('.')[0])
+        
         img = draw_example(chara, src_font, args.img_size, (args.img_size-args.chara_size)/2, (args.img_size-args.chara_size)/2)
         font_name = os.path.splitext(os.path.basename(item))[0]
-        path_full = os.path.join(args.save_path, font_name)
-        
+        path_full = os.path.join(args.save_path, uni)
+        print('chara:{}, src_font:{}, arg.img_size:{}'.format(t, src_font, args.img_size))
         if not os.path.exists(path_full):
             os.mkdir(path_full)
         img = img.convert('L')
         # img.save(os.path.join(path_full, "%04d.png" % (cnt)))
-        img.save(os.path.join(path_full, "%s.png" % (t)))
-        
+        img.save(os.path.join(path_full, "%s.png" % (font_name)))
