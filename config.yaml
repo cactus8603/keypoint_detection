@@ -3,11 +3,19 @@ device: "0,1,2,3,4,5,6,7"
 seed: 8603
 
 # for train data
-data_path: "./image/all_word" # "./image/diff1107" 
-# for eval data
-val_data_path: # "./image/rare1107"
+# train style classifier with 142 fonts
+# data_path: "./image/byFont"     
+# n_classes: 142
 
-model_save_path: "./result/all15000/Vit_large_pos_warmup3_raAttn/"
+# train word classifier with 12948 words
+data_path: "./image/byUnicode"  
+n_classes: 12948
+
+
+# for eval data
+val_data_path: "./image/rare1107"
+
+model_save_path: "./result/content/from_handover/Vit_large_pos_warmup5_reAttn/"
 
 ### DDP setting
 use_ddp: True
@@ -16,7 +24,7 @@ port: 8888 # 8994
 ### training setting
 
 # eval
-load_model_path: "result/all15000/Vit_large_pos_warmup3/model_40_0.998_.pth"
+load_model_path: "./result/all15000/Vit_large_pos_warmup3_raAttn/model_52_0.999_.pth"
 
 # continue training
 load_state: False
@@ -30,15 +38,15 @@ batch_size: 64
 num_workers: 6
 
 # lr
-lr: 0.001
+lr: 0.01
 
 # scheduler
 lrf: 0.0005
 momentum: 0.937
 weight_decay: 0.00005
 warmup: True
-warmup_step: 3
-warmup_start_value: 0.0001
+warmup_step: 5
+warmup_start_value: 0.001 # 0.0001
 
 # other
 epoch: 500
@@ -72,4 +80,5 @@ drop_p: 0
 expansion: 4
 
 in_channels: 3
-n_classes: 142
+
+
