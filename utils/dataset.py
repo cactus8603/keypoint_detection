@@ -32,11 +32,11 @@ class ImgDataSet(Dataset):
         img = cv2.imread(self.img_data[idx])
         label = self.img_label[idx]
 
-        gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-        img = np.zeros_like(img)
-        img[:,:,0] = gray
-        img[:,:,1] = gray
-        img[:,:,2] = gray
+        # gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+        # img = np.zeros_like(img)
+        # img[:,:,0] = gray
+        # img[:,:,1] = gray
+        # img[:,:,2] = gray
 
         img_tensor = self.transform(img)
         label_tensor = torch.zeros(self.num_classes)
