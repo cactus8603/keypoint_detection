@@ -12,4 +12,20 @@ class MultiCropWrapper(nn.Module):
         if not isinstance(x, list):
             x = [x]
 
-        idx_crops = torch.cumsum(torch.)
+        idx_crops = torch.cumsum(torch.unique_consecutive(
+            torch.tensor([inp.shape[-1] for inp in x]),
+            return_counts=True,
+        )[1], 0)
+
+        start_idx, output = 0, torch.empty(0).to(x[0].device)
+
+        for end_idx in idx_crops:
+            _out = self.backbone(torch.cat(x[start_idx: end_idx]))
+
+            if isinstance(_out, tuple):
+                _out = _out[0]
+
+            output = torch.cat((output, _out))
+            start_idx = end_idx
+
+        return self.head(output)
