@@ -1,10 +1,11 @@
 import os
-os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5,6,7,8"
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5"
 import random
 
 import torch
 import math
 import numpy as np
+import timm
 import torch.backends.cudnn as cudnn
 import torch.distributed as dist
 import torch.multiprocessing as mp
@@ -18,8 +19,9 @@ from torch.cuda import amp
 from utils.dataset import ImgDataSet
 from utils.utils import read_spilt_data, get_loader, train_one_epoch, evaluate
 from utils.parser import parser_args
-from model.vit import Vit
 
+
+# set seed
 def init(seed):
     seed = seed
     torch.manual_seed(seed)
@@ -29,7 +31,6 @@ def init(seed):
     random.seed(seed)
     torch.backends.cudnn.benchmark = True
     torch.backends.cudnn.deterministic = True
-
 
 def cleanup():
     dist.destroy_process_group()
@@ -51,6 +52,7 @@ def train_ddp(rank, world_size, args_dict):
     train(args_dict, ddp_gpu=rank)
     cleanup()
 
+# train function
 def train(args_dict, ddp_gpu=-1):
     cudnn.benchmark = True
 
@@ -61,9 +63,20 @@ def train(args_dict, ddp_gpu=-1):
     train_loader, val_loader = get_loader(args_dict) 
     print("Get data loader successfully")
 
+
+    ### import timm model, see more in model.txt ###
+
+    # swin_large_patch4_window7_224 # swin transformer 
+    # convnext_large # convnext
+    # vit_large_patch32_224 # vit
+    # vit_base_resnet50d_224 # hybrid model
+    # deit_base_distilled_patch16_224 # deit
+    model = timm.create_model('convnext_large', pretrained=False, num_classes=args_dict['n_classes'])
+
     # setting Distributed 
-    if args_dict['use_ddp']:
-        model = DDP(Vit(args_dict).to(ddp_gpu))
+    if args_dict['use_ddp']:   
+        model = DDP(model.to(ddp_gpu))
+        # model = DDP(model(args_dict).to(ddp_gpu))
 
     # check if folder exist and start summarywriter on main worker
     if is_main_worker(ddp_gpu):
@@ -75,7 +88,7 @@ def train(args_dict, ddp_gpu=-1):
         # save the whole model at first time to avoid loss model
         print("Save init model")
         save_path = args_dict['model_save_path'] + "init_model.pt"
-        tmp_model = Vit(args_dict)
+        tmp_model = model
         torch.save(tmp_model, save_path)
 
     # if need load model and keep training
@@ -83,7 +96,7 @@ def train(args_dict, ddp_gpu=-1):
         model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
         print("Load model successfully")
     else:
-        model = Vit(args_dict).to(ddp_gpu)
+        model = model.to(ddp_gpu)
 
     # setting the next training epoch of loading model
     if args_dict['skip_epoch'] >= 0 and args_dict['load_state']:
@@ -175,5 +188,9 @@ if __name__ == '__main__':
         mp.spawn(train_ddp, nprocs=n_gpus_per_node, args=(world_size, args_dict))
     else:
         train(args_dict)
+
+    # model = model(args_dict)
+    # print(model.__dict__)
+    
 
     
