@@ -1,84 +1,65 @@
-device: "0,1,2,3,4,5,6,7"
-
 seed: 8603
 
 # for train data
 # train style classifier with 142 fonts
-# data_path: "./image/byFont"     
-# n_classes: 142
+data_path: "/code/Font/pin"
+char_font_dict: "./cfgs/char_classes_17350.json" 
+n_classes: 17350
+
+# train_data_path: "/code/Font/spilt/byFont/train"
+# val_data_path: "/code/Font/spilt/byFont/val"  
+
+# for train style classifier 
+# char_font_dict: "./cfgs/font_classes_173.json"  
+# n_classes: 173
+
+# for train content classifier
+# char_font_dict: "./cfgs/char_classes_4807.json"  
+# n_classes: 4807
 
 # train word classifier with 12948 words
-data_path: "./image/byUnicode"  
-n_classes: 12948
+# data_path: "../../data/Font/byUnicode"  
+# n_classes: 12948
 
+model_save_path: "/data/model_performance/pin/swin_base"
 
-# for eval data
-val_data_path: "./image/rare1107"
-
-model_save_path: "./result/content/from_handover/Vit_large_pos_warmup5_reAttn/"
-
-### DDP setting
-use_ddp: True
+### DDP setting ###
+use_ddp: True 
 port: 8888 # 8994
 
 ### training setting
 
 # eval
-load_model_path: "./result/all15000/Vit_large_pos_warmup3_raAttn/model_52_0.999_.pth"
+load_model_path: # "../../data/model_performance/style/from_handover/swin_large_patch4_window7_224/model_40_0.994_.pth"
 
 # continue training
 load_state: False
-skip_epoch: 10
+skip_epoch: 0
 
 # data
-spilt_rate: 0.8
+spilt_rate: 0.8     # spilt train and valid data
 
 # data loader
-batch_size: 64
+batch_size: 128
 num_workers: 6
 
 # lr
-lr: 0.01
+lr:  0.01
 
 # scheduler
 lrf: 0.0005
 momentum: 0.937
 weight_decay: 0.00005
-warmup: True
+warmup: True # True
 warmup_step: 5
 warmup_start_value: 0.001 # 0.0001
 
 # other
-epoch: 500
-accumulation_step: 8
+epoch: 800
+accumulation_step: 4
 cosanneal_cycle: 50 # 30
-save_frequency: 2
-reAttention: True
+save_frequency: 10
+reAttention: False
 
-### Model 
-
-# Vit Base
-# patch_size: 16
-# img_size: 224
-# emb_size: 768
-# depth: 12
-# num_heads: 12
-
-# Vit Large
-patch_size: 16
-img_size: 224
-emb_size: 1024
-depth: 24
-num_heads: 16
-
-decoder_embed_dim: 768
-decoder_depth: 8
-decoder_heads: 16
-
-drop_p: 0
-
-expansion: 4
-
-in_channels: 3
 
 

@@ -13,6 +13,8 @@ from sklearn.metrics import precision_score, recall_score, f1_score, confusion_m
 from .dataset import ImgDataSet
 
 def read_spilt_data(args_dict):
+
+    # for not spilt train and val
     assert os.path.exists(args_dict['data_path']), "data path:{} does not exist".format(args_dict['data_path'])
 
     font_class = glob(os.path.join(args_dict['data_path'], '*'))
@@ -28,7 +30,7 @@ def read_spilt_data(args_dict):
     for cla in font_class:
         img = glob(os.path.join(cla, '*'))
         # print(img)
-        img_class = font_class_indices[cla]
+        img_class = os.path.basename(cla).split('.')[0] 
         # print(img_class)
 
         spilt_point = random.sample(img, k=int(len(img) * args_dict['spilt_rate']))
@@ -41,6 +43,51 @@ def read_spilt_data(args_dict):
                 val_data.append(img_path)
                 val_label.append(img_class)
     return train_data, train_label, val_data, val_label
+
+    # for spilt train and val
+
+    # for train data
+    # assert os.path.exists(args_dict['train_data_path']), "data path:{} does not exist".format(args_dict['train_data_path'])
+
+    # font_class = glob(os.path.join(args_dict['train_data_path'], '*'))
+    # font_class.sort()
+    # font_class_indices = dict((k, v) for v, k in enumerate(font_class))
+
+    # train_data = []
+    # train_label = []
+
+    # for cla in font_class:
+    #     img = glob(os.path.join(cla, '*'))
+    #     # print(img)
+    #     # img_class = font_class_indices[cla]
+    #     img_font = os.path.basename(cla).split('.')[0] 
+    #     # print(img_font)
+
+    #     for img_path in img:
+    #         train_data.append(img_path) 
+    #         train_label.append(img_font)
+        
+    # # for val data 
+    # # assert os.path.exists(args_dict['val_data_path']), "data path:{} does not exist".format(args_dict['val_data_path'])
+
+    # font_class = glob(os.path.join(args_dict['val_data_path'], '*'))
+    # font_class.sort()
+    # font_class_indices = dict((k, v) for v, k in enumerate(font_class))
+
+    # val_data = []
+    # val_label = []
+
+    # for cla in font_class:
+    #     img = glob(os.path.join(cla, '*'))
+    #     # print(img)
+    #     # img_class = font_class_indices[cla]
+    #     img_font = os.path.basename(cla).split('.')[0]
+
+    #     for img_path in img:
+    #         val_data.append(img_path) 
+    #         val_label.append(img_font)
+
+    # return train_data, train_label, val_data, val_label
 
 def get_loader(args_dict):
     train_data, train_label, val_data, val_label = read_spilt_data(args_dict)
@@ -162,6 +209,7 @@ def train_one_epoch(model, optimizer, data_loader, device, epoch, scaler, args_d
     for i, (img, label) in enumerate(data_loader):
         img, label = img.to(device), label.to(device)
         # print(img.shape)
+        # print(label.argmax(1))
         # print(label.shape)
         # break
         sample_num += img.shape[0]
@@ -223,11 +271,13 @@ def evaluate(model, data_loader, device, epoch, classes):
 
         if epoch==-1:
             cm += get_confusion_matrix(label.argmax(1), p.argmax(1), classes)
+        
+        data_loader.desc = "epoch:{}, loss:{:.5f}, acc:{:.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
 
     if epoch==-1:
         WP = WP_score(cm, classes) / sample_num
 
-    data_loader.desc = "epoch:{}, loss:{:.5f}, acc:{:.5f}".format(epoch, accu_loss.item()/(i+1), accu_num.item() / sample_num)
+    
 
     if epoch==-1:
         return accu_loss.item()/(i+1), accu_num.item() / sample_num, cm
