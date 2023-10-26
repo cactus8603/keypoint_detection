@@ -2,6 +2,7 @@ seed: 8603
 
 # for train data
 # train style classifier with 142 fonts
+<<<<<<< HEAD
 data_path: "/code/Font/pin"
 char_font_dict: "./cfgs/char_classes_17350.json" 
 n_classes: 17350
@@ -16,6 +17,10 @@ n_classes: 17350
 # for train content classifier
 # char_font_dict: "./cfgs/char_classes_4807.json"  
 # n_classes: 4807
+=======
+# data_path: "../../data/Font/byFont"     
+# n_classes: 142
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 
 # train word classifier with 12948 words
 # data_path: "../../data/Font/byUnicode"  
@@ -23,6 +28,14 @@ n_classes: 17350
 
 model_save_path: "/data/model_performance/pin/swin_base"
 
+<<<<<<< HEAD
+=======
+# for eval data
+val_data_path: # "./image/rare1107"
+
+model_save_path: # "../../data/model_performance/content/from_handover/convnext_large/" # "./result/content/from_handover/efficientnetv2_m/"
+
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 ### DDP setting ###
 use_ddp: True 
 port: 8888 # 8994
@@ -59,7 +72,11 @@ epoch: 800
 accumulation_step: 4
 cosanneal_cycle: 50 # 30
 save_frequency: 10
+<<<<<<< HEAD
 reAttention: False
+=======
+reAttention: True
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 
 
 

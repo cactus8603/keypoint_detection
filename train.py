@@ -1,5 +1,9 @@
 import os
+<<<<<<< HEAD
 os.environ["CUDA_VISIBLE_DEVICES"] = "2,3,4,5"
+=======
+os.environ["CUDA_VISIBLE_DEVICES"] = "0,1,2,3,4,5"
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 import random
 
 import torch
@@ -63,7 +67,10 @@ def train(args_dict, ddp_gpu=-1):
     train_loader, val_loader = get_loader(args_dict) 
     print("Get data loader successfully")
 
+<<<<<<< HEAD
     # scheduler = lr_scheduler.StepLR(opt, step_size=3, gamma=0.1)
+=======
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 
     ### import timm model, see more in model.txt ###
 
@@ -72,6 +79,7 @@ def train(args_dict, ddp_gpu=-1):
     # vit_large_patch32_224 # vit
     # vit_base_resnet50d_224 # hybrid model
     # deit_base_distilled_patch16_224 # deit
+<<<<<<< HEAD
     # efficientnetv2_m
     # efficientnetv2_rw_m
     # efficientnetv2_rw_s
@@ -80,6 +88,14 @@ def train(args_dict, ddp_gpu=-1):
     # efficientnetv2_s
     # efficientformerv2_s0, efficientformerv2_s1, efficientformerv2_s2, 
     model = timm.create_model('efficientformerv2_s0', pretrained=False, num_classes=args_dict['n_classes'])
+=======
+    model = timm.create_model('convnext_large', pretrained=False, num_classes=args_dict['n_classes'])
+
+    # setting Distributed 
+    if args_dict['use_ddp']:   
+        model = DDP(model.to(ddp_gpu))
+        # model = DDP(model(args_dict).to(ddp_gpu))
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 
     # check if folder exist and start summarywriter on main worker
     if is_main_worker(ddp_gpu):
@@ -89,10 +105,34 @@ def train(args_dict, ddp_gpu=-1):
         tb_writer = SummaryWriter(args_dict['model_save_path'])
 
         # save the whole model at first time to avoid loss model
+<<<<<<< HEAD
         # print("Save init model")
         # save_path = os.path.join(args_dict['model_save_path'], "init_model.pt")
         
         # torch.save(model, save_path)
+=======
+        print("Save init model")
+        save_path = args_dict['model_save_path'] + "init_model.pt"
+        tmp_model = model
+        torch.save(tmp_model, save_path)
+
+    # if need load model and keep training
+    if args_dict['load_state']:
+        model.load_state_dict(torch.load(args_dict['load_model_path']), strict=True)
+        print("Load model successfully")
+    else:
+        model = model.to(ddp_gpu)
+
+    # setting the next training epoch of loading model
+    if args_dict['skip_epoch'] >= 0 and args_dict['load_state']:
+        start_epoch = args_dict['skip_epoch'] + 1
+        if epoch < args_dict['warmup_step']:
+            warmup(None)
+        else:
+            scheduler.step()
+    else:
+        start_epoch = 0
+>>>>>>> d9361a29c7afc46f90793d07811fd92799c55d8f
 
     # setting optim
     pg = [p for p in model.parameters() if p.requires_grad]
