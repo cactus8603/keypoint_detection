@@ -1,4 +1,0 @@
-Vit_base:
-    NonWarm-up:
-        1.  Non position embedding
-        2.  position embedding
